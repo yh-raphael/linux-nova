@@ -45,7 +45,7 @@ u64 nova_dedup_queue_get_next_entry(u64 *target_inode_number){
 
 		list_del(dqueue.head.list.next);
 		kfree(ptr);
-		printk("dqueue-POP(Write Entry Address: %llu, Inode Number: %llu)\n",ret,*target_inode_number);
+		//printk("dqueue-POP(Write Entry Address: %llu, Inode Number: %llu)\n",ret,*target_inode_number);
 	}
 	mutex_unlock(&dqueue.lock);
 	return ret;
@@ -294,7 +294,7 @@ int nova_dedup_FACT_insert(struct super_block *sb, struct fingerprint_lookup_dat
 		te.prev = prev_index;
 		te.next = 0;
 
-		printk("index: %llu, block_address: %llu, count: %llu, prev: %llu, next: %llu \n", index, te.block_address, te.count, te.prev, te.next);
+		//printk("index: %llu, block_address: %llu, count: %llu, prev: %llu, next: %llu \n", index, te.block_address, te.count, te.prev, te.next);
 	}
 
 	// copy target_entry to pmem
