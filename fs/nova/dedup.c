@@ -27,7 +27,7 @@ int nova_dedup_queue_push(u64 new_address, u64 target_inode_number){
 	new_data->target_inode_number = target_inode_number;
 	mutex_unlock(&dqueue.lock);
 
-	printk("dqueue-PUSH(Write Entry Address: %llu, Inode Number: %llu)\n",new_address,target_inode_number);
+	//printk("dqueue-PUSH(Write Entry Address: %llu, Inode Number: %llu)\n",new_address,target_inode_number);
 	return 0;
 }
 
@@ -73,11 +73,11 @@ static int calc_hash(struct crypto_shash *alg,
 	int ret;
 
 	sdesc = init_sdesc(alg);
+
 	if (IS_ERR(sdesc)) {
 		pr_info("can't alloc sdesc\n");
 		return PTR_ERR(sdesc);
 	}
-
 	ret = crypto_shash_digest(&sdesc->shash, data, datalen, digest);
 	kfree(sdesc);
 	return ret;
@@ -218,8 +218,9 @@ int nova_dedup_FACT_read(struct super_block *sb, u64 index){
 	next = target->next;
 	prev = target->prev;
 
-	printk("Read FACT an entry - index:%llu, ref_count:%d, up_count:%d, prev:%llu, next:%llu, block_address: %llu\n",
-			index,r_count,u_count,prev,next,block_address);
+	//printk("Read FACT an entry - index:%llu, ref_count:%d, up_count:%d, prev:%llu, next:%llu, block_address: %llu\n",
+		//	index,r_count,u_count,prev,next,block_address);
+
 	return 0;
 }
 
