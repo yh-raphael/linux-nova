@@ -33,6 +33,7 @@
 
 #define REORDER_THRESHOLD 150
 
+
 /* nova_dedup_queue
 	 queue of entries that needs to be deduplicated
 */
@@ -79,6 +80,7 @@ struct fingerprint_lookup_data{
   u64 block_address; // Actual address of this entry(where the data block is)
 };
 
+void nova_dedup_read_emulate(unsigned long size);
 
 int nova_dedup_FACT_init(struct super_block *sb);
 int nova_dedup_FACT_read(struct super_block *sb, u64 index);
@@ -89,5 +91,11 @@ int nova_dedup_queue_init(void);
 
 int nova_dedup_is_duplicate(struct super_block *sb, unsigned long blocknr, bool check);
 int nova_dedup_fingerprint(unsigned char * datapage, unsigned char *ret_fingerprint);
+
+/// DEDUP CYH //
+int nova_dedup_FACT_insert(struct super_block *sb, struct fingerprint_lookup_data* lookup);
+// DEDUP CYH ///
+
+int nova_dedup_entry_update(struct super_block *sb, struct nova_inode_info_header *sih, u64 begin_tail);
 
 #endif
