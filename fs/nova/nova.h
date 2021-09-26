@@ -260,9 +260,12 @@ static inline int memcpy_to_pmem_nocache(void *dst, const void *src,
 	unsigned int size)
 {
 	int ret;
-
+	int i;
+	volatile int emul=0;
+	unsigned int emulator_value = size/4096;
 	ret = __copy_from_user_inatomic_nocache(dst, src, size);
-
+	for(i=0;i<emulator_value*EMULATION_WRITE_CYCLE;i++)
+		emul=emul+i;
 	return ret;
 }
 
