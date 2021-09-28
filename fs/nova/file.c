@@ -850,6 +850,7 @@ head_edge:
 		i = -1;
 		start = 0; end = 0;
 		allocated_saved = allocated;
+		int dup_cnt = 0;
 		while (offset || i < allocated_saved - 1)
 		{
 			if (offset)
@@ -858,6 +859,7 @@ head_edge:
 			for (i = start; i < allocated_saved; i++) {
 				// if this block is duplicate, then go out!
 				if (duplicate_check[i] == 1) {
+					dup_cnt ++;
 					allocated = 1;
 					blocknr = lookup_data[i].block_address;
 					//bytes = DATABLOCK_SIZE; //copied = DATABLOCK_SIZE;
@@ -872,6 +874,12 @@ head_edge:
 					end = i;
 					allocated = end - start + 1;
 					blocknr = lookup_data[start].block_address;
+					if (duplicate_check[i + 1] == 1) {
+						bytes = allocated * DATABLOCK_SIZE;
+					}
+					else if (i == allocated - 1) {
+						bytes = (allocated - 1) * DATABLOCK_SIZE + bytes & (sb->s_blocksize - 1);
+					}
 					printk("[unique-end] allocated: %d, blocknr: %lu, start_blk: %lu \n", allocated, blocknr, start_blk);
 					if (i == allocated - 1)
 						break;
