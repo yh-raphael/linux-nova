@@ -78,6 +78,7 @@ struct fingerprint_lookup_data{
   unsigned char fingerprint[FINGERPRINT_SIZE]; // fingerprint of entry
   u64 index; // index of entry
   u64 block_address; // Actual address of this entry(where the data block is)
+	u64 data_size;	// CYH
 };
 
 void nova_dedup_read_emulate(unsigned long size);
