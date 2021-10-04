@@ -573,9 +573,11 @@ memcpy:
 skip_verify:
 		NOVA_START_TIMING(memcpy_r_nvmm_t, memcpy_time);
 
-		if (!zero)
+		if (!zero) {
 			left = __copy_to_user(buf + copied,
 					dax_mem + offset, nr);
+			nova_dedup_read_emulate(nr);	//////////////////////////////////// added.
+		}
 		else
 			left = __clear_user(buf + copied, nr);
 
@@ -751,6 +753,7 @@ static ssize_t do_nova_cow_file_write(struct file *filp,
 	update.tail = sih->log_tail;
 	update.alter_tail = sih->alter_log_tail;
 	while (num_blocks > 0) {
+		chunk = 0;		/////////////////////////////// [Bug Fix] added.
 		offset = pos & (nova_inode_blk_size(sih) - 1);		printk("num_blocks: %ld, offset: %lu \n", num_blocks, offset);
 		start_blk = pos >> sb->s_blocksize_bits;
 
@@ -808,10 +811,8 @@ static ssize_t do_nova_cow_file_write(struct file *filp,
 				copy_from_user(k_buf, buf + chunk, DATABLOCK_SIZE);
 				lookup_data[i].data_size = DATABLOCK_SIZE;	///////////////////
 			}
-			// (2) Fingerprint each data chunk.
-			getnstimeofday(&t0);
-			nova_dedup_fingerprint(k_buf, fingerprint);
-			getnstimeofday(&t1);
+			// (2) Fingerprint each data chunk.					// getnstimeofday(&t0);
+			nova_dedup_fingerprint(k_buf, fingerprint);	// getnstimeofday(&t1);
 			// store FP result in DRAM intermediately.
 			//printk("%ld sec %ld nsec\n", t1.tv_sec - t0.tv_sec, t1.tv_nsec - t0.tv_nsec);//
 			for (j = 0; j < FINGERPRINT_SIZE; j++) {
@@ -851,6 +852,8 @@ head_edge:
 		start = 0; end = 0;
 		allocated_saved = allocated;
 		int dup_cnt = 0;
+		int temp_start_blk = start_blk;									///////////////////////// [Bug Fix] added.
+		int temp_bytes = lookup_data[allocated_saved-1].data_size;	///////////// [Bug Fix[ added.
 		while (offset || i < allocated_saved - 1)
 		{
 			if (offset)
@@ -878,7 +881,7 @@ head_edge:
 						bytes = allocated * DATABLOCK_SIZE;
 					}
 					else if (i == allocated - 1) {
-						bytes = (allocated - 1) * DATABLOCK_SIZE + bytes & (sb->s_blocksize - 1);
+						bytes = (allocated - 1) * DATABLOCK_SIZE + temp_bytes;	///////// [Bug Fix] added.
 					}
 					printk("[unique-end] allocated: %d, blocknr: %lu, start_blk: %lu \n", allocated, blocknr, start_blk);
 					if (i == allocated - 1)
@@ -906,6 +909,7 @@ head_edge_2:
 				if (ret)
 					goto out;
 			}
+
 dup:
 			printk("pos + copied : %u \n", pos + copied);
 			if (pos + copied > inode->i_size)
